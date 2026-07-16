@@ -38,4 +38,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+    public function watchlists()
+    {
+        return $this->hasMany(Watchlist::class);
+    }
 }

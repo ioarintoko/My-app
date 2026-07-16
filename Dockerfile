@@ -28,7 +28,9 @@ RUN apt-get update && apt-get install -y \
         gd \
         intl \
         zip \
-        xml
+        xml \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -40,15 +42,22 @@ COPY composer.json composer.lock ./
 
 RUN composer install \
     --prefer-dist \
-    --no-interaction
+    --no-interaction \
+    --no-scripts
 
 # Copy source code
 COPY . .
 
+# Jalankan composer scripts (package:discover, dll) setelah source code lengkap
+RUN composer dump-autoload --optimize
+
 # Entry point
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Healthcheck: pastikan proses PHP-FPM masih hidup dan bisa merespons
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD pgrep -f "php-fpm: master process" > /dev/null || exit 1
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 

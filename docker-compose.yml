@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
 
   app:
@@ -13,7 +11,8 @@ services:
       - ./:/var/www/html
 
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
 
   nginx:
     image: nginx:alpine
@@ -46,6 +45,13 @@ services:
 
     volumes:
       - mysql_data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
 volumes:
   mysql_data:

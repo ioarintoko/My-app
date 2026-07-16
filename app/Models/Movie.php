@@ -9,17 +9,18 @@ class Movie extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
+   protected $fillable = [
+        'external_id',
         'title',
-        'description',
         'genre',
-        'duration',
-        'release_date',
-        'rating',
+        'year',
+        'plot',
+        'poster_url',
+        'imdb_id',
     ];
 
-    protected $casts = [
-        'release_date' => 'date',
-        'rating' => 'decimal:1',
-    ];
+    public function watchlists()
+    {
+        return $this->hasMany(Watchlist::class);
+    }
 }
