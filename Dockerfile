@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     unzip \
     zip \
+    procps \
     libpng-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
@@ -48,14 +49,14 @@ RUN composer install \
 # Copy source code
 COPY . .
 
-# Jalankan composer scripts (package:discover, dll) setelah source code lengkap
+# Jalankan ulang autoload setelah source code lengkap tersedia
 RUN composer dump-autoload --optimize
 
 # Entry point
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Healthcheck: pastikan proses PHP-FPM masih hidup dan bisa merespons
+# Healthcheck: pastikan proses PHP-FPM masih hidup
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
     CMD pgrep -f "php-fpm: master process" > /dev/null || exit 1
 
